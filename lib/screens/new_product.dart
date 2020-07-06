@@ -1,12 +1,20 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:money_tracker/models/category.dart';
 import 'package:money_tracker/models/product.dart';
 
 class NewProduct extends StatefulWidget {
+  final Category category;
+  NewProduct(this.category);
+
   @override
-  _NewProductState createState() => _NewProductState();
+  _NewProductState createState() => _NewProductState(category);
 }
 
 class _NewProductState extends State<NewProduct> {
+  Category category;
+  _NewProductState(this.category);
+
   TextEditingController _nameController = TextEditingController();
   TextEditingController _priceController = TextEditingController();
   String name;
@@ -14,37 +22,52 @@ class _NewProductState extends State<NewProduct> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Scaffold(
-        backgroundColor: Colors.green[200],
-        appBar: AppBar(
-          title: Text('Add to category'),
-          leading: Text('123'),
-        ),
-        body: Container(
-          child: Column(
-            children: <Widget>[
-              setProductName(),
-              setProductprice(),
-              RaisedButton(
-                child: Text(
-                  'Add',
-                  style: TextStyle(fontSize: 20),
-                ),
-                color: Colors.green,
-                onPressed: () {
-                  name = _nameController.text;
-                  price = _priceController.text;
-                  _nameController.clear();
-                  _priceController.clear();
+    return Scaffold(
+      backgroundColor: Colors.green[200],
+      appBar: AppBar(title: Text('Add to category')),
+      body: Container(
+        child: Column(
+          children: <Widget>[
+            setProductName(),
+            setProductprice(),
+            RaisedButton(
+              child: Text(
+                'Add',
+                style: TextStyle(fontSize: 20),
+              ),
+              color: Colors.green,
+              onPressed: () {
+                name = _nameController.text;
+                price = _priceController.text;
+                _nameController.clear();
+                _priceController.clear();
+                double doublePrise;
+                try {
+                  doublePrise = double.parse(price);
                   Navigator.pop(
                       context,
                       Product(DateTime.now().millisecondsSinceEpoch.toString(),
-                          name, double.parse(price)));
-                },
-              ),
-            ],
-          ),
+                          name, doublePrise, category));
+                } catch (e) {
+                  showCupertinoDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return CupertinoAlertDialog(
+                          title: Text('Wrong name/price'),
+                          content: Text(
+                              'The text must be not empty.\nThe price must be like 123.45 or 46.'),
+                          actions: <Widget>[
+                            CupertinoDialogAction(
+                              child: Text('Ok'),
+                              onPressed: () => Navigator.pop(context),
+                            )
+                          ],
+                        );
+                      });
+                }
+              },
+            ),
+          ],
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:money_tracker/models/category.dart';
+import 'package:money_tracker/models/product.dart';
 import 'package:money_tracker/screens/products_list.dart';
 
 class CategoryList extends StatefulWidget {
@@ -9,11 +10,33 @@ class CategoryList extends StatefulWidget {
 
 class CategoryListState extends State<CategoryList> {
   int _selectedIndex = 0;
-  List<Category> categories = [
-    Category('1', 'name1'),
-    Category('2', 'name2'),
-    Category('3', 'name3'),
-  ];
+  List<Category> categories;
+
+  CategoryListState() {
+    categories = [
+      Category('1', 'name1', []),
+      Category('2', 'name2', []),
+      Category('3', 'name3', []),
+    ];
+  }
+
+  void newProduct(String id, Product product) {
+    setState(() {
+      categories
+          .firstWhere((element) => element.id == id)
+          .products
+          .add(product);
+    });
+  }
+
+  void onDismissed(String catId, String prodId) {
+    setState(() {
+      categories
+          .firstWhere((element) => element.id == catId)
+          .products
+          .removeWhere((element) => element.id == prodId);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +62,8 @@ class CategoryListState extends State<CategoryList> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ProductsList(categories[i]),
+                        builder: (context) => ProductsList(
+                            categories[i], newProduct, onDismissed),
                       ));
                 },
               ),

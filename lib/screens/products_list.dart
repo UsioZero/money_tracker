@@ -5,21 +5,28 @@ import 'package:money_tracker/screens/new_product.dart';
 
 class ProductsList extends StatefulWidget {
   final Category category;
-  ProductsList(this.category);
+  final Function(String, Product) newProduct;
+  final Function(String, String) onDismissed;
+
+  ProductsList(this.category, this.newProduct, this.onDismissed);
   @override
-  ProductsListState createState() => ProductsListState(category);
+  ProductsListState createState() =>
+      ProductsListState(category, newProduct, onDismissed);
 }
 
 class ProductsListState extends State<ProductsList> {
   Category category;
-  List<Product> products = [
-    Product('1', 'name1', 1),
-    Product('2', 'name2', 2),
-    Product('3', 'name3', 3),
-  ];
-  Product newProduct;
+  Function(String, Product) newProduct;
+  Function(String, String) onDismissed;
 
-  ProductsListState(this.category);
+  ProductsListState(this.category, this.newProduct, this.onDismissed) {
+    if (category.products == null)
+      category.products = [
+        Product('1', 'name1', 1, category),
+        Product('2', 'name2', 2, category),
+        Product('3', 'name3', 3, category),
+      ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,21 +36,30 @@ class ProductsListState extends State<ProductsList> {
         title: Text(category.name),
       ),
       body: ListView.builder(
-        itemCount: products.length,
+        itemCount: category.products.length,
         itemBuilder: (context, i) {
-          return Card(
-            elevation: 2,
-            margin: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-            child: Container(
-              decoration: BoxDecoration(color: Colors.green.withOpacity(0.8)),
-              child: ListTile(
-                title: Text(
-                  products[i].name,
-                  style: TextStyle(fontSize: 20),
+          return Dismissible(
+            key: ValueKey(category.products[i].id),
+            background: Container(
+              color: Colors.red,
+            ),
+            child: Card(
+              elevation: 2,
+              margin: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              child: Container(
+                decoration: BoxDecoration(color: Colors.green.withOpacity(0.8)),
+                child: ListTile(
+                  title: Text(
+                    category.products[i].name,
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  subtitle: Text("prise: ${category.products[i].prise}"),
                 ),
-                subtitle: Text("prise: ${products[i].prise}"),
               ),
             ),
+            onDismissed: (direction) {
+              onDismissed(category.id, category.products[i].id);
+            },
           );
         },
       ),
@@ -53,12 +69,10 @@ class ProductsListState extends State<ProductsList> {
           size: 39,
         ),
         onPressed: () async {
-          newProduct = await Navigator.push(
-              context, MaterialPageRoute(builder: (context) => NewProduct()));
-          if (newProduct.name != 'null' && newProduct.prise != -1)
-            setState(() {
-              products.add(newProduct);
-            });
+          var product = await Navigator.push(context,
+              MaterialPageRoute(builder: (context) => NewProduct(category)));
+          if (product != null) newProduct(category.id, product);
+          setState(() {});
         },
       ),
     );
