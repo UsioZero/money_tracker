@@ -28,6 +28,9 @@ class _NewProductState extends State<NewProduct> {
       body: Container(
         child: Column(
           children: <Widget>[
+            SizedBox.expand(
+              child: Container(child: Image.asset('')),
+            ),
             setProductName(),
             setProductprice(),
             RaisedButton(

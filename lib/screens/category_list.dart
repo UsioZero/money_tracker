@@ -4,15 +4,20 @@ import 'package:money_tracker/models/product.dart';
 import 'package:money_tracker/screens/products_list.dart';
 
 class CategoryList extends StatefulWidget {
+  final Function() onLogout;
+
+  CategoryList(this.onLogout);
+
   @override
-  CategoryListState createState() => CategoryListState();
+  CategoryListState createState() => CategoryListState(onLogout);
 }
 
 class CategoryListState extends State<CategoryList> {
   int _selectedIndex = 0;
   List<Category> categories;
+  Function() onLogout;
 
-  CategoryListState() {
+  CategoryListState(this.onLogout) {
     categories = [
       Category('1', 'name1', []),
       Category('2', 'name2', []),
@@ -43,7 +48,16 @@ class CategoryListState extends State<CategoryList> {
     return Scaffold(
       backgroundColor: Colors.green[200],
       appBar: AppBar(
-        title: Text('Tracker Category'),
+        title: ListTile(
+            title: Text(
+              'Tracker Category',
+              style: TextStyle(fontSize: 20),
+            ),
+            trailing: IconButton(
+                icon: Icon(Icons.lock_open),
+                onPressed: () {
+                  onLogout();
+                })),
       ),
       body: ListView.builder(
         itemCount: categories.length,
